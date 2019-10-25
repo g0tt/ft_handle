@@ -1,5 +1,3 @@
-#include <stdint.h>
-
 #define D0 0x1
 #define D1 0x2
 #define D2 0x4
@@ -12,8 +10,6 @@
 #define SCK D0
 #define SDI D1
 #define LDAC D3
-
-typedef uint8_t uint10_t;
 
 int SPI_Initialize(unsigned char *buf) {
   buf[0] = CS | LDAC;
