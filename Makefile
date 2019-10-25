@@ -1,4 +1,4 @@
-ft_handle: ft_handle.c spi.c lib/libftd2xx.dylib D2XX/ftd2xx.h
+ft_handle: ft_handle.c spi.c ftd.h lib/libftd2xx.dylib D2XX/ftd2xx.h
 	gcc -ID2XX -Llib -lftd2xx -O2 -o ft_handle ft_handle.c
 
 clean:

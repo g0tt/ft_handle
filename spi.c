@@ -1,15 +1,17 @@
-#define D0 0x1
-#define D1 0x2
-#define D2 0x4
-#define D3 0x8
-#define D4 0x10
-#define D5 0x20
-#define D6 0x40
-#define D7 0x80
+#include "ftd.h"
+
 #define CS D2
 #define SCK D0
 #define SDI D1
 #define LDAC D3
+
+void ticktock(unsigned char *buf, int *index, unsigned char *current) {
+  *current |= SCK;
+  buf[*index] = *current;
+  *current &= (~SCK);
+  buf[*index + 1] = *current;
+  *index += 2;
+}
 
 int SPI_Initialize(unsigned char *buf) {
   buf[0] = CS | LDAC;
@@ -29,19 +31,14 @@ int SPI_WriteBuf(unsigned char *buf, int data) {
   for (int i = 15; i > 13; i--) {
     current &= (~SDI);
     buf[index++] = current;
-    current |= SCK;
-    buf[index++] = current;
-    current &= (~SCK);
-    buf[index++] = current;
+    ticktock(buf, &index, &current);
   }
+
   // Config bit 13-12: 1
   for (int i = 13; i > 11; i--) {
     current |= SDI;
     buf[index++] = current;
-    current |= SCK;
-    buf[index++] = current;
-    current &= (~SCK);
-    buf[index++] = current;
+    ticktock(buf, &index, &current);
   }
 
   // Data
@@ -53,40 +50,22 @@ int SPI_WriteBuf(unsigned char *buf, int data) {
       current &= (~SDI);
     }
     buf[index++] = current;
-    current |= SCK;
-    buf[index++] = current;
-    current &= (~SCK);
-    buf[index++] = current;
+    ticktock(buf, &index, &current);
   }
 
   // Ignored
   for (int i = 1; i >= 0; i--) {
     current &= (~SDI);
     buf[index++] = current;
-    current |= SCK;
-    buf[index++] = current;
-    current &= (~SCK);
-    buf[index++] = current;
+    ticktock(buf, &index, &current);
   }
 
   current |= CS;
   buf[index++] = current;
-  /*
-  current |= SCK;
-  buf[index++] = current;
-  */
   current &= (~LDAC);
   buf[index++] = current;
-  /*
-  current &= (~SCK);
-  buf[index++] = current;
-  */
   current |= LDAC;
   buf[index++] = current;
-  /*
-  current &= (~CS);
-  buf[index++] = current;
-  */
 
   return index;
 }
